@@ -1,0 +1,28 @@
+{
+    "chatID1":
+    [
+        {
+            productId0: 123,
+            productId1: 321,
+            ultimoPreco: 123.45
+        },
+        {
+            productId0: 123,
+            productId1: 321,
+            ultimoPreco: 123.45
+        },
+    ],
+    "chatID1":
+    [
+        {
+            productId0: 123,
+            productId1: 321,
+            ultimoPreco: 123.45
+        },
+        {
+            productId0: 123,
+            productId1: 321,
+            ultimoPreco: 123.45
+        },
+    ]
+}

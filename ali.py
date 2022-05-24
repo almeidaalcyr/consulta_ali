@@ -7,9 +7,6 @@ produtoID = str(produtoID)
 endereco = "https://pt.aliexpress.com/item/"
 endereco += produtoID + ".html"
 
-item = 0
-cor = ""
-
 reqHttp = urllib.request.FancyURLopener({})
 f = reqHttp.open(endereco)
 pagina = f.read()
@@ -19,7 +16,6 @@ pagina = pagina.split(b'data: ')[1]
 pagina = pagina.decode('utf-8')
 
 produtoDescricao = ""
-
 cont = 0
 
 for i in pagina:
@@ -30,7 +26,7 @@ for i in pagina:
         cont -= 1
         if cont == 0:
             break
-        
+
 # Salva json em arquivo
 JsonArquivo = open(produtoID + ".json",'w')
 JsonArquivo.write(produtoDescricao)
@@ -65,4 +61,5 @@ for itemNo in range(len(Json["skuModule"]["skuPriceList"])):
     preco = Json["skuModule"]["skuPriceList"][itemNo]["skuVal"]["skuAmount"]["value"]
     qtd = Json["skuModule"]["skuPriceList"][itemNo]["skuVal"]["availQuantity"]
     if qtd > 0:
-        print(itemNo, "\t", precoAtivo,"\t",preco,"\t",prodId0,"\t",prodId1," ",descricao0,"\t", descricao1)
+        print(itemNo, "\t", precoAtivo,"\t",preco,"\t",prodId0,"\t",prodId1," ",
+              descricao0,"\t", descricao1)
