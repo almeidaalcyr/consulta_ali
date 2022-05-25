@@ -87,12 +87,11 @@ class consulta_aliexpress:
         prodIds = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuPropIds"]
         atributo0 = prodIds.split(",")[0]
         atributo1 = prodIds.split(",")[1]
-        
+        print((atributo0, atributo1))
         return (atributo0, atributo1)
         
 
-cel = consulta_aliexpress(1005002442302894)
+#cel = consulta_aliexpress(1005002442302894)
 #cel.listaOpcoes()
-cel.consultaPreco(200003982, 29)
-
-print(cel.getAtributos(7))
+#cel.consultaPreco(200003982, 29)
+#cel.getAtributos(7)
