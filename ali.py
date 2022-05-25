@@ -1,39 +1,51 @@
 import urllib.request
 import json
+import time
+from Arquivo import Arquivo
 
 class consulta_aliexpress:
     def __init__(self, produtoId):
         self.produtoId = str(produtoId)
-        self.jsonProduto = self.baixaJson()
+        self.jsonProduto = self.carregaJson()
         
-    def baixaJson(self):
-        endereco = "https://pt.aliexpress.com/item/"
-        endereco += self.produtoId + ".html"
+    def carregaJson(self):
+        if Arquivo.getUltimaAlteracao(self.produtoId+".json") > time.time() - Arquivo.dia:
+            endereco = "https://pt.aliexpress.com/item/"
+            endereco += self.produtoId + ".html"
+        
+            reqHttp = urllib.request.FancyURLopener({})
+            f = reqHttp.open(endereco)
+            html = f.read()
+            
+            html = html.split(b'window.runParams')[1]
+            html = html.split(b'data: ')[1]
+            html = html.decode('utf-8')
+        
+            Json = ""
+            cont = 0
+            
+            for i in html:
+                Json += i
+                if i == "{":
+                    cont += 1
+                elif i == "}":
+                    cont -= 1
+                    if cont == 0:
+                        break
+            
+            self.salvaArquivo(Json, self.produtoId, ".json")
+            Json = json.loads(Json)
+            
+        else:
+            Json = self.carregaArquivo(self.produtoId+".json")
+            
+        return Json
     
-        reqHttp = urllib.request.FancyURLopener({})
-        f = reqHttp.open(endereco)
-        html = f.read()
+    def carregaArquivo(self):
+        arquivo = open(self.produtoId+".json",'r')
+        return arquivo.buffer()
         
-        html = html.split(b'window.runParams')[1]
-        html = html.split(b'data: ')[1]
-        html = html.decode('utf-8')
-    
-        Json = ""
-        cont = 0
         
-        for i in html:
-            Json += i
-            if i == "{":
-                cont += 1
-            elif i == "}":
-                cont -= 1
-                if cont == 0:
-                    break
-        
-        self.salvaArquivo(Json, self.produtoId, ".json")
-        Json = json.loads(Json)
-        return Json    
-    
     def salvaArquivo(self, conteudo, nome, formato):
         arquivo = open(nome + formato,'w')
         arquivo.write(conteudo)
@@ -91,7 +103,8 @@ class consulta_aliexpress:
         return (atributo0, atributo1)
         
 
-#cel = consulta_aliexpress(1005002442302894)
+cel = consulta_aliexpress(1005002442302894)
+cel.carregaArquivo()
 #cel.listaOpcoes()
 #cel.consultaPreco(200003982, 29)
 #cel.getAtributos(7)
