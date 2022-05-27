@@ -16,14 +16,12 @@ class Arquivo:
     dia = hora * 24
     
     def getUltimaAlteracao(arquivo):
-        if Arquivo.verificaArquivoExiste(arquivo):
-            return pathlib.Path(arquivo).st_mtime
+        if Arquivo.verificaArquivoExiste(arquivo) == True:
+            arquivo = pathlib.Path(arquivo)
+            return arquivo.stat().st_mtime
         else:
-            # Se o arquivo não existe, retorna o tempo atual
-            return time.time() 
+             #Se o arquivo não existe, retorna o tempo atual
+             return 0
         
     def verificaArquivoExiste(arquivo):
         return os.path.isfile(arquivo)
-        
-        
-print(Arquivo.getUltimaAlteracao("1005002442302894.json"))

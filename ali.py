@@ -7,9 +7,11 @@ class consulta_aliexpress:
     def __init__(self, produtoId):
         self.produtoId = str(produtoId)
         self.jsonProduto = self.carregaJson()
-        
+        self.qtdAtributos = len(self.jsonProduto["skuModule"]["productSKUPropertyList"])
+
     def carregaJson(self):
-        if Arquivo.getUltimaAlteracao(self.produtoId+".json") > time.time() - Arquivo.dia:
+        if Arquivo.getUltimaAlteracao(self.produtoId+".json") < time.time() - Arquivo.dia:
+            print("Baixando arquivo")
             endereco = "https://pt.aliexpress.com/item/"
             endereco += self.produtoId + ".html"
         
@@ -34,16 +36,16 @@ class consulta_aliexpress:
                         break
             
             self.salvaArquivo(Json, self.produtoId, ".json")
-            Json = json.loads(Json)
             
         else:
-            Json = self.carregaArquivo(self.produtoId+".json")
+            Json = self.carregaArquivo()
             
+        Json = json.loads(Json)
         return Json
     
     def carregaArquivo(self):
         arquivo = open(self.produtoId+".json",'r')
-        return arquivo.buffer()
+        return arquivo.read()
         
         
     def salvaArquivo(self, conteudo, nome, formato):
@@ -51,22 +53,24 @@ class consulta_aliexpress:
         arquivo.write(conteudo)
         arquivo.close()
     
-    def consultaPreco(self, atributo0, atributo1):
+    def consultaPreco(self, atributo0, atributo1 = -1):
         for itemNo in range(len(self.jsonProduto["skuModule"]["skuPriceList"])):
-            
             prodIds = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuPropIds"]
             prodId0 = prodIds.split(",")[0]
-            prodId1 = prodIds.split(",")[1]
             
-            if prodId0 == str(atributo0) and prodId1 == str(atributo1):
+            prodId1 = prodIds.split(",")[1] if self.qtdAtributos > 2 else -1
+            
+            if str(prodId0) == str(atributo0) and str(prodId1) == str(atributo1):
                 descricao = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuAttr"]
                 descricao0 = descricao.split("#")[1].split(";")[0]
-                descricao1 = descricao.split("#")[2].split(";")[0]
+                
+                descricao1 = descricao.split("#")[2].split(";")[0] if self.qtdAtributos > 2 else -1
                 
                 precoAtivo = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuVal"]["skuActivityAmount"]["value"]
                 preco = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuVal"]["skuAmount"]["value"]
                 qtd = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuVal"]["availQuantity"]
                 if qtd > 0:
+                    print("### R$",precoAtivo,"###")
                     print(itemNo, "\t", precoAtivo,"\t",preco,"\t",prodId0,"\t",prodId1," ",
                           descricao0,"\t", descricao1)
                     return
@@ -82,11 +86,13 @@ class consulta_aliexpress:
         for itemNo in range(len(self.jsonProduto["skuModule"]["skuPriceList"])):
             descricao = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuAttr"]
             descricao0 = descricao.split("#")[1].split(";")[0]
-            descricao1 = descricao.split("#")[2].split(";")[0]
+            
+            descricao1 = descricao.split("#")[2].split(";")[0] if self.qtdAtributos > 2 else -1
 
             prodIds = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuPropIds"]
             prodId0 = prodIds.split(",")[0]
-            prodId1 = prodIds.split(",")[1]
+            
+            prodId1 = prodIds.split(",")[1] if self.qtdAtributos > 2 else -1                
 
             precoAtivo = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuVal"]["skuActivityAmount"]["value"]
             preco = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuVal"]["skuAmount"]["value"]
@@ -95,16 +101,16 @@ class consulta_aliexpress:
                 print(itemNo, "\t", precoAtivo,"\t",preco,"\t",prodId0,"\t",prodId1," ",
                       descricao0,"\t", descricao1)
 
-    def getAtributos(self, itemNo):
-        prodIds = self.jsonProduto["skuModule"]["skuPriceList"][itemNo]["skuPropIds"]
+    def getAtributos(self, ordemItem):
+        prodIds = self.jsonProduto["skuModule"]["skuPriceList"][ordemItem]["skuPropIds"]
+        print(prodIds)
         atributo0 = prodIds.split(",")[0]
-        atributo1 = prodIds.split(",")[1]
-        print((atributo0, atributo1))
-        return (atributo0, atributo1)
+        atributo1 = prodIds.split(",")[1] if self.qtdAtributos > 2 else -1
         
+        print((atributo0, atributo1))
+        return (atributo0, atributo1)        
 
 cel = consulta_aliexpress(1005002442302894)
-cel.carregaArquivo()
-#cel.listaOpcoes()
-#cel.consultaPreco(200003982, 29)
-#cel.getAtributos(7)
+cel.listaOpcoes()
+item = 7
+cel.consultaPreco(cel.getAtributos(item)[0],cel.getAtributos(item)[1])
