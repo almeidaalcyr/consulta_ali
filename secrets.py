@@ -8,3 +8,5 @@ Created on Wed May 25 09:08:57 2022
 
 BOT = "aliexpress_alertabot"
 API_TOKEN = "5160655331:AAGQ1G4fljTwlEBrC51EVXbTjOPSXYemLGk"
+
+token_git: "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"
